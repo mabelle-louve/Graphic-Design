@@ -243,6 +243,12 @@
     textarea { min-height: 130px; resize: vertical; }
     input:focus, textarea:focus { outline: none; border-color: var(--rose); box-shadow: 0 0 0 4px rgba(234,90,125,.16); }
     .form-note { margin: .7rem 0 0; color: var(--muted); font-size: .7rem; }
+    .form-status { margin: 0 0 1rem; padding: .75rem .9rem; border-radius: 12px; font-size: .82rem; font-weight: 700; }
+    .form-status:empty { display: none; }
+    .form-success { color: #135f43; background: var(--mint); border: 1.5px solid #22875f; }
+    .form-error { color: #8b233f; background: #ffe4eb; border: 1.5px solid var(--rose-dark); }
+    .field-error { min-height: 1.1em; color: var(--rose-dark); font-size: .7rem; font-weight: 700; }
+    [data-fs-submit-btn]:disabled { cursor: wait; opacity: .65; transform: none; box-shadow: none; }
 
     .lightbox {
       position: fixed; inset: 0; z-index: 1000;
@@ -512,16 +518,35 @@
             <a class="button button-secondary" href="https://www.facebook.com/MabelleLouve" target="_blank" rel="noopener noreferrer">Facebook ↗</a>
           </div>
         </div>
-        <form class="contact-card" id="contact-form">
+        <form class="contact-card" id="contact-form" action="https://formspree.io/f/xgogagqp" method="POST">
           <h3>Project enquiry</h3>
-          <p>This form opens your email app with the project details filled in.</p>
+          <p>Send your project details directly. You’ll see a confirmation here when your message has been delivered.</p>
+
+          <div class="form-status form-success" data-fs-success role="status" aria-live="polite"></div>
+          <div class="form-status form-error" data-fs-error role="alert" aria-live="assertive"></div>
+
           <div class="form-row">
-            <div class="field"><label for="name">Your name</label><input id="name" name="name" autocomplete="name" required></div>
-            <div class="field"><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="email" required></div>
+            <div class="field">
+              <label for="name">Your name</label>
+              <input id="name" name="name" autocomplete="name" data-fs-field required>
+              <span class="field-error" data-fs-error="name"></span>
+            </div>
+            <div class="field">
+              <label for="email">Email address</label>
+              <input id="email" name="email" type="email" autocomplete="email" data-fs-field required>
+              <span class="field-error" data-fs-error="email"></span>
+            </div>
           </div>
-          <div class="field"><label for="project">Tell me about your project</label><textarea id="project" name="project" placeholder="Project type, timeline, audience and what you need..." required></textarea></div>
-          <button class="button button-primary" type="submit">Prepare message <span aria-hidden="true">↗</span></button>
-          <p class="form-note">Add your preferred business email in the script near the bottom of this file before publishing.</p>
+
+          <div class="field">
+            <label for="project">Tell me about your project</label>
+            <textarea id="project" name="message" placeholder="Project type, timeline, audience and what you need..." data-fs-field required></textarea>
+            <span class="field-error" data-fs-error="message"></span>
+          </div>
+
+          <input type="hidden" name="_subject" value="New portfolio enquiry for Mabelle Louve">
+          <button class="button button-primary" type="submit" data-fs-submit-btn>Send enquiry <span aria-hidden="true">↗</span></button>
+          <p class="form-note">Your details are sent securely through Formspree and are only used to reply to your enquiry.</p>
         </form>
       </div>
     </section>
@@ -605,16 +630,14 @@
 
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    document.getElementById('contact-form').addEventListener('submit', event => {
-      event.preventDefault();
-      const portfolioEmail = 'YOUR-EMAIL@example.com';
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const project = document.getElementById('project').value.trim();
-      const subject = encodeURIComponent(`Portfolio enquiry from ${name}`);
-      const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nProject details:\n${project}`);
-      window.location.href = `mailto:${portfolioEmail}?subject=${subject}&body=${body}`;
+    window.formspree = window.formspree || function () {
+      (formspree.q = formspree.q || []).push(arguments);
+    };
+    formspree('initForm', {
+      formElement: '#contact-form',
+      formId: 'xgogagqp'
     });
   </script>
+  <script src="https://unpkg.com/@formspree/ajax@1" defer></script>
 </body>
 </html>
